@@ -1970,19 +1970,7 @@ void Monitor::handle_command(MMonCommand *m)
     return;
   }
 
-  // check return value. If no prefix parameter provided,
-  // return value will be false, then return error info.
-  if(!cmd_getval(g_ceph_context, cmdmap, "prefix", prefix)) {
-    reply_command(op, -EINVAL, "command prefix not found", 0);
-    return;
-  }
-
-  // check prefix is empty
-  if (prefix.empty()) {
-    reply_command(op, -EINVAL, "command prefix must not be empty", 0);
-    return;
-  }
-
+  cmd_getval(g_ceph_context, cmdmap, "prefix", prefix);
   if (prefix == "get_command_descriptions") {
     bufferlist rdata;
     Formatter *f = new_formatter("json");
@@ -2002,15 +1990,6 @@ void Monitor::handle_command(MMonCommand *m)
   boost::scoped_ptr<Formatter> f(new_formatter(format));
 
   get_str_vec(prefix, fullcmd);
-
-  // make sure fullcmd is not empty.
-  // invalid prefix will cause empty vector fullcmd.
-  // such as, prefix=";,,;"
-  if (fullcmd.empty()) {
-    reply_command(op, -EINVAL, "command requires a prefix to be valid", 0);
-    return;
-  }
-
   module = fullcmd[0];
 
   if (!_allowed_command(session, module, prefix, cmdmap)) {
