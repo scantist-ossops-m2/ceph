@@ -14,7 +14,6 @@
 #include "rgw_rest.h"
 #include "rgw_acl.h"
 #include "rgw_acl_s3.h"
-#include "rgw_acl_swift.h"
 #include "rgw_user.h"
 #include "rgw_log.h"
 #include "rgw_multi.h"
@@ -269,13 +268,7 @@ static int build_policies(struct req_state *s, bool only_bucket, bool prefetch_d
   int ret = 0;
   string obj_str;
 
-  if(s->dialect.compare("s3") == 0) {
-    s->bucket_acl = new RGWAccessControlPolicy_S3(s->cct);
-  } else if(s->dialect.compare("swift")  == 0) {
-    s->bucket_acl = new RGWAccessControlPolicy_SWIFT(s->cct);
-  } else {
-    s->bucket_acl = new RGWAccessControlPolicy(s->cct);
-  }
+  s->bucket_acl = new RGWAccessControlPolicy(s->cct);
 
   RGWBucketInfo bucket_info;
   if (s->bucket_name_str.size()) {
