@@ -1811,6 +1811,9 @@ bool RGWSwiftWebsiteHandler::is_web_dir() const
     return false;
   } else if (subdir_name.back() == '/') {
     subdir_name.pop_back();
+    if (subdir_name.empty()) {
+      return false;
+    }
   }
 
   rgw_obj obj(s->bucket, subdir_name);
