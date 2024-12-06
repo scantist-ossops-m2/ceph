@@ -303,6 +303,8 @@ int RGWListBucket_ObjStore_SWIFT::get_params()
   if (op_ret < 0) {
     return op_ret;
   }
+  // S3 behavior is to silently cap the max-keys.
+  // Swift behavior is to abort.
   if (max > default_max)
     return -ERR_PRECONDITION_FAILED;
 
@@ -2434,6 +2436,9 @@ bool RGWSwiftWebsiteHandler::is_web_dir() const
     return false;
   } else if (subdir_name.back() == '/') {
     subdir_name.pop_back();
+    if (subdir_name.empty()) {
+      return false;
+    }
   }
 
   rgw_obj obj(s->bucket, std::move(subdir_name));
