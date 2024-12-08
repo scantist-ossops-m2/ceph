@@ -1691,6 +1691,9 @@ int RGWPostObj_ObjStore_S3::get_tags()
     RGWObjTagging_S3 *tagging;
 
     tagging = static_cast<RGWObjTagging_S3 *>(parser.find_first("Tagging"));
+    if (!tagging) {
+      return -ERR_MALFORMED_XML;
+    }
     obj_tags_s3 = static_cast<RGWObjTagSet_S3 *>(tagging->find_first("TagSet"));
     if(!obj_tags_s3){
       return -ERR_MALFORMED_XML;
@@ -3744,8 +3747,9 @@ AWSGeneralAbstractor::get_auth_data_v4(const req_state* const s,
   boost::optional<std::string> canonical_headers = \
     get_v4_canonical_headers(s->info, signed_hdrs, using_qs);
   if (canonical_headers) {
-    ldout(s->cct, 10) << "canonical headers format = " << *canonical_headers
-                      << dendl;
+    using sanitize = rgw::crypt_sanitize::log_content;
+    ldout(s->cct, 10) << "canonical headers format = "
+                      << sanitize{*canonical_headers} << dendl;
   } else {
     throw -EPERM;
   }
